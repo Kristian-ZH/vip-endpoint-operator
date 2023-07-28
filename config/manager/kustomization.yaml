@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: kristianzhe/vip-endpoint-operator
-  newTag: v0.10
+  newTag: v0.11

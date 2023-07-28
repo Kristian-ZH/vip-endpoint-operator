@@ -1,6 +1,10 @@
 
+# VERSION comes from the VERSION file
+VERSION := $(shell cat VERSION)
+# REGISTRY is the container registry where the operator images are stored
+REGISTRY ?= kristianzhe/vip-endpoint-operator
 # Image URL to use all building/pushing image targets
-IMG ?= kristianzhe/vip-endpoint-operator:v0.10
+IMG ?= $(REGISTRY):$(VERSION)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.27.1
 
