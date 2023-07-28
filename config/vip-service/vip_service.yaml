@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubernetes-vip
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 6443
+    protocol: TCP
+    targetPort: 6443
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: kubernetes-vip
+  namespace: default
+  labels:
+    endpointslice.kubernetes.io/managed-by: vip-endpoint-operator
+subsets:
+- addresses:
+  - ip: 1.1.1.1
+  ports:
+  - port: 6443
+    protocol: TCP
