@@ -7,6 +7,8 @@ REGISTRY ?= kristianzhe/vip-endpoint-operator
 IMG ?= $(REGISTRY):$(VERSION)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.27.1
+# LD_FLAGS are the flags which will be used by the operator in order to print the correct version
+LD_FLAGS :=$(shell hack/get-build-ld-flags.sh)
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -68,11 +70,11 @@ test: manifests fmt vet envtest ## Run tests.
 
 .PHONY: build
 build: manifests fmt vet ## Build manager binary.
-	go build -o bin/manager cmd/main.go
+	go build -ldflags="$(LD_FLAGS)" -o bin/manager cmd/main.go
 
 .PHONY: run
 run: manifests fmt vet ## Run a controller from your host.
-	go run ./cmd/main.go
+	go run -ldflags="$(LD_FLAGS)" ./cmd/main.go
 
 # If you wish built the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64 ). However, you must enable docker buildKit for it.
