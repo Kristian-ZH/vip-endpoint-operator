@@ -15,6 +15,9 @@ RUN go mod download
 COPY cmd/main.go cmd/main.go
 COPY internal/controller/ internal/controller/
 
+# Copy the manifests
+COPY config config
+
 # Build
 # the GOARCH has not a default value to allow the binary be built according to the host where the command
 # was called. For example, if we call make docker-build in a local env which has the Apple Silicon M1 SO
@@ -27,6 +30,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o ma
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
 COPY --from=builder /workspace/manager .
+COPY --from=builder /workspace/config /config
 USER 65532:65532
 
 ENTRYPOINT ["/manager"]

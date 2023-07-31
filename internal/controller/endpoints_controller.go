@@ -19,15 +19,20 @@ package controller
 import (
 	"context"
 
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+)
+
+var (
+	// Name is the name of the operator
+	Name = "vip-endpoint-operator"
 )
 
 // EndpointsReconciler reconciles a Endpoints object
@@ -65,8 +70,8 @@ func (r *EndpointsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	// update the endpoints
-	if err := r.syncEndpoints(ctx, endpoints); err != nil {
-		logger.Error(err, "Error syncing endpoint")
+	if err := r.syncEndpoints(ctx, logger, endpoints); err != nil {
+		logger.Error(err, "error syncing endpoint")
 		return reconcile.Result{}, err
 	}
 
@@ -93,12 +98,11 @@ func (r *EndpointsReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 // syncEndpoint updates the Endpoint resource with the current node IPs.
-func (r *EndpointsReconciler) syncEndpoints(ctx context.Context, defaultEndpoints *corev1.Endpoints) error {
-	// Get the managed endpoint resource
+func (r *EndpointsReconciler) syncEndpoints(ctx context.Context, logger logr.Logger, defaultEndpoints *corev1.Endpoints) error {
 	managedEndpoints := &corev1.Endpoints{}
-	if err := r.Get(ctx, types.NamespacedName{Name: r.ManagedEndpointName, Namespace: r.ManagedEndpointNamespace}, managedEndpoints); err != nil {
-		return client.IgnoreNotFound(err)
-	}
+	managedEndpoints.ObjectMeta.Name = r.ManagedEndpointName
+	managedEndpoints.ObjectMeta.Namespace = r.ManagedEndpointNamespace
+	managedEndpoints.ObjectMeta.Labels = map[string]string{"endpointslice.kubernetes.io/managed-by": Name}
 
 	// Copy only subset addresses without the ports
 	managedEndpoints.Subsets = []corev1.EndpointSubset{}
