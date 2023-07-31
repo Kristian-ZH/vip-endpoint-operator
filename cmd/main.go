@@ -80,6 +80,17 @@ func main() {
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
+	// Print the values of the flags
+	setupLog.Info("", "Metrics Address", metricsAddr)
+	setupLog.Info("", "Health Probe Address", probeAddr)
+	setupLog.Info("", "Leader Election Enabled", enableLeaderElection)
+	setupLog.Info("", "Default Endpoint Name", defaultEndpointName)
+	setupLog.Info("", "Default Endpoint Namespace", defaultEndpointNamespace)
+	setupLog.Info("", "Managed Endpoint Name", managedEndpointName)
+	setupLog.Info("", "Managed Endpoint Namespace", managedEndpointNamespace)
+	setupLog.Info("", "APIServer HTTPS Port", apiserverHttpsPort)
+	setupLog.Info("", "APIServer HTTPS Protocol", apiserverHttpsProtocol)
+
 	setupLog.Info("Starting Endpoints Operator", "Version", version.Get())
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
